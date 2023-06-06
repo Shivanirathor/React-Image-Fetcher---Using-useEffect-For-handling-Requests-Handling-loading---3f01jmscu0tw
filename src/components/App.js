@@ -1,46 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
-import Loader from './Loader';
-import PhotoFrame from './PhotoFrame';
+import React, { useState } from 'react'
+import '../styles/App.css';
+import { Loader } from './Loader';
+import { PhotoFrame } from './PhotoFrame';
 
 const App = () => {
-  const [number, setNumber] = useState('');
-  const [photoData, setPhotoData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleInputChange = (e) => {
-    setNumber(e.target.value);
-  };
+    const [loader,setLoader] = useState(false);
+    const [response,setResponse] = useState({});
+    const [num,setNum] = useState("");
+    const [init,setInit] = useState(0);
+  
+    const handleBlur = async (event) =>{
+        setNum(event.target.value)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (number !== '') {
-        setIsLoading(true);
+        let id = event.target.value;
+        setLoader(true);
+        const res = await fetch(`https://jsonplaceholder.typicode.com/photos/${id}`)
+        const response = await res.json();
+        setResponse(response);
+        setLoader(false);
+        setInit(100);
 
-        try {
-          const response = await fetch(`https://jsonplaceholder.typicode.com/photos/${number}`);
-          const data = await response.json();
-          setPhotoData(data);
-        } catch (error) {
-          console.log('Error:', error);
-        }
+    }
+    if(loader){
+        return <Loader />
+    }
 
-        setIsLoading(false);
-      }
-    };
+    return (
+        <>
+        <label htmlFor='inp'>Id number </label>
+        <input type="number" id='inp' value={num} onChange={handleBlur} />
+        <PhotoFrame url={response.url} title={response.title}/>
+        </>
+    )
+}
 
-    fetchData();
-  }, [number]);
-
-  return (
-    <div className="App">
-      <input type="number" value={number} onChange={handleInputChange} placeholder="Enter a number" />
-
-      {isLoading && <Loader />}
-
-      {photoData && <PhotoFrame url={photoData.url} title={photoData.title} />}
-    </div>
-  );
-};
 
 export default App;
