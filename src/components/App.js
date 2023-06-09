@@ -1,48 +1,52 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import '../styles/App.css';
 import { Loader } from './Loader';
 import { PhotoFrame } from './PhotoFrame';
 
-
 const App = () => {
-  const [id, setId] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [photoId, setPhotoId] = useState('');
   const [photoData, setPhotoData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchData = (id) => {
-    setLoading(true);
-    fetch(`https://jsonplaceholder.typicode.com/photos/${id}`)
-      .then(response => response.json())
-      .then(data => {
-        setPhotoData(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error(error);
-        setLoading(false);
-      });
+  const handleInputChange = (e) => {
+    setPhotoId(e.target.value);
   };
 
   useEffect(() => {
-    if (id !== '') {
-      fetchData(id);
-    }
-  }, [id]);
+    if (photoId !== '') {
+      setIsLoading(true);
 
-  const handleInputChange = (event) => {
-    const inputValue = event.target.value;
-    setId(inputValue);
-  };
+      fetch(`https://jsonplaceholder.typicode.com/photos/${photoId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setPhotoData(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          setIsLoading(false);
+        });
+    }
+  }, [photoId]);
 
   return (
-    <div className="App">
-      <input type="number" value={id} onChange={handleInputChange} />
-      {loading && <Loader />}
-      {photoData && (
-        <PhotoFrame url={photoData.url} title={photoData.title} />
+    <div id="main">
+      <input
+        type="number"
+        placeholder="Enter a number"
+        value={photoId}
+        onChange={handleInputChange}
+      />
+
+      {isLoading ? (
+        <Loader />
+      ) : (
+        photoData && (
+          <PhotoFrame url={photoData.url} title={photoData.title} />
+        )
       )}
     </div>
   );
 };
 
-export default App;
+export default App;
